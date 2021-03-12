@@ -23,13 +23,14 @@ const sharedQuerySchema = Joi.object({
   attachmentName: Joi.string(),
   scrollPage: Joi.boolean(),
   emulateScreenMedia: Joi.boolean(),
+  enableGPU: Joi.boolean(),
   ignoreHttpsErrors: Joi.boolean(),
   waitFor: Joi.alternatives([
     Joi.number().min(1).max(60000),
     Joi.string().min(1).max(2000),
   ]),
   cookies: Joi.array().items(cookieSchema),
-  output: Joi.string().valid(['pdf', 'screenshot']),
+  output: Joi.string().valid(['pdf', 'screenshot', 'html']),
   'viewport.width': Joi.number().min(1).max(30000),
   'viewport.height': Joi.number().min(1).max(30000),
   'viewport.deviceScaleFactor': Joi.number().min(0).max(100),
@@ -45,6 +46,7 @@ const sharedQuerySchema = Joi.object({
   'pdf.format': Joi.string().min(1).max(2000),
   'pdf.width': Joi.string().min(1).max(2000),
   'pdf.height': Joi.string().min(1).max(2000),
+  'pdf.fullPage': Joi.boolean(),
   'pdf.footerTemplate': Joi.string(),
   'pdf.headerTemplate': Joi.string(),
   'pdf.margin.top': Joi.string().min(1).max(2000),
@@ -59,7 +61,9 @@ const sharedQuerySchema = Joi.object({
   'screenshot.clip.y': Joi.number(),
   'screenshot.clip.width': Joi.number(),
   'screenshot.clip.height': Joi.number(),
+  'screenshot.selector': Joi.string().regex(/(#|\.).*/),
   'screenshot.omitBackground': Joi.boolean(),
+  failEarly: Joi.string(),
 });
 
 const renderQuerySchema = Joi.object({
@@ -74,7 +78,7 @@ const renderBodyObject = Joi.object({
   ignoreHttpsErrors: Joi.boolean(),
   emulateScreenMedia: Joi.boolean(),
   cookies: Joi.array().items(cookieSchema),
-  output: Joi.string().valid(['pdf', 'screenshot']),
+  output: Joi.string().valid(['pdf', 'screenshot', 'html']),
   viewport: Joi.object({
     width: Joi.number().min(1).max(30000),
     height: Joi.number().min(1).max(30000),
@@ -99,6 +103,7 @@ const renderBodyObject = Joi.object({
     format: Joi.string().min(1).max(2000),
     width: Joi.string().min(1).max(2000),
     height: Joi.string().min(1).max(2000),
+    fullPage: Joi.boolean(),
     footerTemplate: Joi.string(),
     headerTemplate: Joi.string(),
     margin: Joi.object({
@@ -119,6 +124,7 @@ const renderBodyObject = Joi.object({
       width: Joi.number(),
       height: Joi.number(),
     },
+    selector: Joi.string().regex(/(#|\.).*/),
     omitBackground: Joi.boolean(),
   }),
   failEarly: Joi.string(),
@@ -134,4 +140,3 @@ module.exports = {
   renderBodySchema,
   sharedQuerySchema,
 };
-
