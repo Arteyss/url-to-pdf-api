@@ -20,6 +20,7 @@ async function createBrowser(opts) {
     browserOpts.executablePath = config.BROWSER_EXECUTABLE_PATH;
   }
   browserOpts.headless = !config.DEBUG_MODE;
+  // Always disable GPU
   browserOpts.args = ['--disable-gpu', '--no-sandbox', '--disable-setuid-sandbox'];
   return puppeteer.launch(browserOpts);
 }
@@ -61,7 +62,7 @@ async function render(_opts = {}) {
       type: 'png',
       fullPage: true,
     },
-    failEarly: false,
+    failEarly: '',
   }, _opts);
 
   if ((_.get(_opts, 'pdf.width') && _.get(_opts, 'pdf.height')) || _.get(opts, 'pdf.fullPage')) {
@@ -88,17 +89,16 @@ async function render(_opts = {}) {
   this.failedResponses = [];
   page.on('requestfailed', (request) => {
     this.failedResponses.push(request);
-    if (request.url === opts.url) {
+    if (request.url() === opts.url) {
       this.mainUrlResponse = request;
     }
   });
 
   page.on('response', (response) => {
-    if (response.status >= 400) {
+    if (response.status() >= 400) {
       this.failedResponses.push(response);
     }
-
-    if (response.url === opts.url) {
+    if (response.url() === opts.url) {
       this.mainUrlResponse = response;
     }
   });
@@ -142,7 +142,8 @@ async function render(_opts = {}) {
     if (this.failedResponses.length) {
       logger.warn(`Number of failed requests: ${this.failedResponses.length}`);
       this.failedResponses.forEach((response) => {
-        logger.warn(`${response.status} ${response.url}`);
+        // websocket response has no status
+        logger.warn(`${response.status && response.status()} ${response.url()}`);
       });
 
       if (opts.failEarly === 'all') {
@@ -151,8 +152,8 @@ async function render(_opts = {}) {
         throw err;
       }
     }
-    if (opts.failEarly === 'page' && this.mainUrlResponse.status !== 200) {
-      const msg = `Request for ${opts.url} did not directly succeed and returned status ${this.mainUrlResponse.status}`;
+    if (opts.failEarly === 'page' && this.mainUrlResponse.status() !== 200) {
+      const msg = `Request for ${opts.url} did not directly succeed and returned status ${this.mainUrlResponse.status()}`;
       const err = new Error(msg);
       err.status = 412;
       throw err;

@@ -188,6 +188,7 @@ function getOptsFromQuery(query) {
       selector: query['screenshot.selector'],
       omitBackground: query['screenshot.omitBackground'],
     },
+    failEarly: query.failEarly,
   };
   return opts;
 }
