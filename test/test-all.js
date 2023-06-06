@@ -209,4 +209,30 @@ describe('POST /api/render', () => {
         chai.expect(text).to.have.string('special characters: ä ö ü');
       })
   );
+
+  it('test emulate time zone of browser', () =>
+  request(app)
+    .post('/api/render')
+    .send({ html: getResource('time-zone.html'), emulateTimezone: 'Australia/Sydney' })
+    .set('Connection', 'keep-alive')
+    .set('content-type', 'application/json')
+    .expect(200)
+    .expect('content-type', 'application/pdf')
+    .then((response) => {
+      if (DEBUG) {
+        console.log(response.headers);
+        console.log(response.body);
+        fs.writeFileSync('time-zone.pdf', response.body, { encoding: null });
+      }
+
+      return getPdfTextContent(response.body, { raw: true });
+    })
+    .then((text) => {
+      if (DEBUG) {
+        fs.writeFileSync('./time-zone-content.txt', text);
+      }
+
+      chai.expect(text).to.have.string("The browser's time zone is now Australia/Sydney");
+    })
+  );
 });

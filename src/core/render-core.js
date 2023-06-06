@@ -44,6 +44,7 @@ async function render(_opts = {}) {
     cookies: [],
     scrollPage: false,
     emulateScreenMedia: true,
+    emulateTimezone: null,
     ignoreHttpsErrors: false,
     html: null,
     viewport: {
@@ -107,6 +108,12 @@ async function render(_opts = {}) {
   try {
     logger.info('Set browser viewport..');
     await page.setViewport(opts.viewport);
+
+    if (opts.emulateTimezone) {
+      logger.info('Emulate time zone browser..');
+      await page.emulateTimezone(opts.emulateTimezone);
+    }
+
     if (opts.emulateScreenMedia) {
       logger.info('Emulate @media screen..');
       await page.emulateMedia('screen');
