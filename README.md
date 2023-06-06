@@ -327,11 +327,13 @@ First, clone the repository and cd into it.
 
 * `docker-compose up`
 
-Server runs at http://localhost:9000 
+Server runs at http://localhost:9000
 
 #### 4. Docker deployment (production)
 
-* `docker build -f Dockerfile.production .`
+* `docker build -f Dockerfile.production . --tag 264500462730.dkr.ecr.ap-southeast-2.amazonaws.com/printer:prod-latest`
+* `AWS_PROFILE=enrolhq-admin docker push 264500462730.dkr.ecr.ap-southeast-2.amazonaws.com/printer:prod-latest`
+* `watchtower` will automatically pull the image and restart the container
 
 NOTE: By default it will listen to all interfaces without authentification
 
